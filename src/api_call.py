@@ -1,13 +1,17 @@
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 def qso2text(QSO_text):
 
-    # instruction = "Please do not use enumeration in the answer, and do not act Translate briefly the following ham radio QSO message into human-readable plain text (like a chat message)"
-    # content = f'{instruction} : {QSO_text}'
+    api_key = os.getenv("API_KEY")
 
     client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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",
+    api_key=api_key,
     )
     completion = client.chat.completions.create(
         model="deepseek/deepseek-chat-v3-0324:free",
