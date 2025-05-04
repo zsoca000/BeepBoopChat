@@ -1,9 +1,9 @@
 import sys
 import os
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTextEdit, QLabel, QFileDialog
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTextEdit, QLabel, QFileDialog, QLineEdit, QComboBox, QSpinBox, QHBoxLayout
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtCore import QUrl
-from src.utils import wav2morse, morse2qso, qso2text
+from src.utils import wav2morse, morse2qso, qso2text, text2qso, qso2morse, morse2wav
 
 
 def decode_morse_from_audio(file_path):
@@ -15,10 +15,10 @@ def decode_morse_from_audio(file_path):
     else:
         return 'Error: Unsupported file format. Please upload a .wav file.'
 
-def encode_text_to_morse_audio(text, output_path):
-    # Placeholder: Implement actual Morse encoding logic
-    with open(output_path, 'w') as f:
-        f.write("Morse audio file generated.")
+def encode_text_to_morse_audio(text,partner_name,your_name,watt,antenna,location,readability,strength,tone,output_path):
+    qso_text = text2qso(text,partner_name,your_name,watt,antenna,location,readability,strength,tone)
+    morse_code = qso2morse(qso_text)
+    morse2wav(morse_code,output_path=output_path)
     return output_path
 
 class MorseCodeApp(QWidget):
@@ -40,6 +40,43 @@ class MorseCodeApp(QWidget):
         self.replyText = QTextEdit()
         layout.addWidget(QLabel("Your Reply:"))
         layout.addWidget(self.replyText)
+
+        # Add "Your name" and "Partner name" text boxes
+        nameLayout = QHBoxLayout()
+        self.yourNameInput = QLineEdit()
+        self.partnerNameInput = QLineEdit()
+        nameLayout.addWidget(QLabel("Your name:"))
+        nameLayout.addWidget(self.yourNameInput)
+        nameLayout.addWidget(QLabel("Partner name:"))
+        nameLayout.addWidget(self.partnerNameInput)
+        layout.addLayout(nameLayout)
+
+        # Add "Location" text box and "Antenna" dropdown
+        locationAntennaLayout = QHBoxLayout()
+        self.locationInput = QLineEdit()
+        self.antennaDropdown = QComboBox()
+        self.antennaDropdown.addItem("W3DZZ")
+        locationAntennaLayout.addWidget(QLabel("Location:"))
+        locationAntennaLayout.addWidget(self.locationInput)
+        locationAntennaLayout.addWidget(QLabel("Antenna:"))
+        locationAntennaLayout.addWidget(self.antennaDropdown)
+        layout.addLayout(locationAntennaLayout)
+
+        # Add integer inputs for "Antenna", "Readability", "Strength", and "Tone"
+        signalLayout = QHBoxLayout()
+        self.watt = QSpinBox()
+        self.readabilityInput = QSpinBox()
+        self.strengthInput = QSpinBox()
+        self.toneInput = QSpinBox()
+        signalLayout.addWidget(QLabel("Watt:"))
+        signalLayout.addWidget(self.watt)
+        signalLayout.addWidget(QLabel("Readability:"))
+        signalLayout.addWidget(self.readabilityInput)
+        signalLayout.addWidget(QLabel("Strength:"))
+        signalLayout.addWidget(self.strengthInput)
+        signalLayout.addWidget(QLabel("Tone:"))
+        signalLayout.addWidget(self.toneInput)
+        layout.addLayout(signalLayout)
         
         self.encodeButton = QPushButton("Generate Morse Audio")
         self.encodeButton.clicked.connect(self.generate_morse_audio)
@@ -71,8 +108,19 @@ class MorseCodeApp(QWidget):
     def generate_morse_audio(self):
         text = self.replyText.toPlainText()
         if text:
-            self.output_path = "output_morse.wav"  # Modify as needed
-            encode_text_to_morse_audio(text, self.output_path)
+            self.output_path = "OUTPUT.wav"
+            
+            # get the necessary values
+            your_name = self.yourNameInput.text()
+            partner_name = self.partnerNameInput.text()
+            location = self.locationInput.text()
+            antenna = self.antennaDropdown.currentText()
+            watt = self.watt.value()
+            readability = self.readabilityInput.value()
+            strength = self.strengthInput.value()
+            tone = self.toneInput.value()
+
+            encode_text_to_morse_audio(text,partner_name,your_name,watt,antenna,location,readability,strength,tone,self.output_path)
             self.playButton.setEnabled(True)
             self.downloadButton.setEnabled(True)
     

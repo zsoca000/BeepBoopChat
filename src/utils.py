@@ -125,22 +125,122 @@ def qso2text(QSO_text):
         messages=[
             {
                 "role": "system",
-                "content": "You are a translator who converts ham radio messages into detailed human-readable prose, returning only the translated message."
+                "content": "You are a translator who converts QSO code - english translator. You return just the translated messages, without explanations and notes."
             },
             {
                 "role": "user",
-                "content": QSO_text
+                "content": f"Please translate the following message into detailed human-readable prose. Please do not explain it. {QSO_text}"
             }
         ]
     )
     return completion.choices[0].message.content
 
+def text2qso(text,partner_name,your_name,watt,antenna,location,readability,strength,tone):
+    api_key = os.getenv("API_KEY")
+    client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=api_key,
+    )
+    completion = client.chat.completions.create(
+        model="deepseek/deepseek-chat-v3-0324:free",
+        temperature=0.2,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a english-QSO translator. You return just the translated messages, without explanations and notes."
+            },
+            {
+                "role": "user",
+                "content": f"Please translate the following message into CW-style QSO code. Please do not explain it. Message: Dear {partner_name}. My name is {your_name}, my location is {location}, I'm running {watt} watt of power with a {antenna} antenna. The recived signal readability was {readability}, strength was {strength} and tone was {tone}. {text}"
+            }
+        ]
+    )
+    return completion.choices[0].message.content
+
+def qso2morse(text):
+    morse_code_dict = {
+        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+        'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+        'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+        'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+        'Y': '-.--', 'Z': '--..',
+        'a': '.-', 'b': '-...', 'c': '-.-.', 'd': '-..', 'e': '.', 'f': '..-.',
+        'g': '--.', 'h': '....', 'i': '..', 'j': '.---', 'k': '-.-', 'l': '.-..',
+        'm': '--', 'n': '-.', 'o': '---', 'p': '.--.', 'q': '--.-', 'r': '.-.',
+        's': '...', 't': '-', 'u': '..-', 'v': '...-', 'w': '.--', 'x': '-..-',
+        'y': '-.--', 'z': '--..',
+        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+        '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+        '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--',
+        '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...',
+        ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-',
+        '"': '.-..-.', '$': '...-..-', '@': '.--.-.', ' ': '/'
+    }
+    morse_code = ' '.join(morse_code_dict[char] for char in text if char in morse_code_dict)
+    return morse_code
+
+def morse2wav(morse_code, filename='output.wav', wpm=20, freq=600, sample_rate=44100):
+    # Timing based on WPM
+    dot_duration = 1.2 / wpm           # in seconds
+    dash_duration = 3 * dot_duration
+    intra_char_space = dot_duration
+    inter_char_space = 3 * dot_duration
+    inter_word_space = 7 * dot_duration
+
+    def tone(duration):
+        t = np.linspace(0, duration, int(sample_rate * duration), False)
+        return 0.5 * np.sin(2 * np.pi * freq * t)
+
+    def silence(duration):
+        return np.zeros(int(sample_rate * duration))
+
+    audio = np.array([], dtype=np.float32)
+    for word in morse_code.strip().split(' / '):
+        for char in word.split(' '):
+            for symbol in char:
+                if symbol == '.':
+                    audio = np.concatenate((audio, tone(dot_duration)))
+                elif symbol == '-':
+                    audio = np.concatenate((audio, tone(dash_duration)))
+                audio = np.concatenate((audio, silence(intra_char_space)))
+            audio = np.concatenate((audio, silence(inter_char_space - intra_char_space)))
+        audio = np.concatenate((audio, silence(inter_word_space - inter_char_space)))
+
+    # Normalize and save
+    audio = np.int16(audio * 32767)
+    with wave.open(filename, 'w') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(sample_rate)
+        wf.writeframes(audio.tobytes())
+
+    print(f"WAV file generated: {filename}") 
+
 if __name__ == '__main__':
    
-    input_path = 'src/examples/2.wav'
-    morse_code = wav2morse(input_path)
-    print(f"Decoded Morse Code: {morse_code}") 
-    qso = morse2qso(morse_code)
-    print(f"Qso Code: {qso}") 
+    # input_path = 'src/examples/2.wav'
+    # morse_code = wav2morse(input_path)
+    # print(f"Decoded Morse Code: {morse_code}") 
+    # qso = morse2qso(morse_code)
+    # print(f"Qso Code: {qso}") 
+    # text = qso2text(qso)
+    # print(f"Plain Text: {text}") 
+
+    
+    partner_name = 'Gábor'
+    your_name = 'Zsolt'
+    location = 'Budapest'
+    watt = 10
+    antenna = 'W3DZZ'
+    readability, strength, tone = 5, 9, 9
+
+    text = 'My family is fine, how is your wife and your children?'
+
+    print('TEXT:', text,'\n')
+    qso = text2qso(text,partner_name,your_name,watt,antenna,location,readability,strength,tone)
+    print('QSO :', qso,'\n')
     text = qso2text(qso)
-    print(f"Plain Text: {text}") 
+    print('TEXT:', text,'\n')
+
+
+
