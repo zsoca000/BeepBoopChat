@@ -73,9 +73,9 @@ def convert_to_morse(segment_lengths):
     morse_code = ""
     for seg_type, length in segment_lengths:
         if seg_type == '1':
-            if 2000 <= length <= 5000:
+            if 1000 <= length <= 4000:
                 morse_code += '.'
-            elif 8000 <= length <= 10000:
+            elif 6000 <= length <= 10000:
                 morse_code += '-'
         elif seg_type == '0':
             if 1000 <= length <= 4000:
