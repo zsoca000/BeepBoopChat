@@ -1,0 +1,5 @@
+I have this text:
+
+"Hello, this is HA5KDR calling HA5OGL. Thank you for the report. Your signal report is 579. My location is Budapest, and my name is Levente. I am using 10 watts of power with a W3DZZ antenna. The weather is cold. I am now finished with this contact. Thank you for the great conversation!"
+
+convert it to ham radio text for morse transmitting using ham abridgment and q codes also and make it short but understandable for beginners

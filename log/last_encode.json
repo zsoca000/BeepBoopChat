@@ -1,0 +1,16 @@
+{
+    "text": {
+        "message": "Hello, did you see the football match?\n",
+        "partner_name": "John",
+        "your_name": "Joe",
+        "watt": 10,
+        "antenna": "W3DZZ",
+        "location": "Budapest",
+        "readability": 5,
+        "strength": 9,
+        "tone": 9
+    },
+    "qso": "DEAR JOHN. MY NAME IS JOE, MY QTH IS BUDAPEST, PWR 10 WATTS ANT W3DZZ. UR RST 599. HW DID U SEE THE FOOTBALL MATCH?",
+    "morse": "-.. . .- .-. / .--- --- .... -. .-.-.- / -- -.-- / -. .- -- . / .. ... / .--- --- . --..-- / -- -.-- / --.- - .... / .. ... / -... ..- -.. .- .--. . ... - --..-- / .--. .-- .-. / .---- ----- / .-- .- - - ... / .- -. - / .-- ...-- -.. --.. --.. .-.-.- / ..- .-. / .-. ... - / ..... ----. ----. .-.-.- / .... .-- / -.. .. -.. / ..- / ... . . / - .... . / ..-. --- --- - -... .- .-.. .-.. / -- .- - -.-. .... ..--..",
+    "wav_path": "OUTPUT.wav"
+}

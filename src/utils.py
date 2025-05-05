@@ -32,8 +32,7 @@ def process_wav(input_wav, threshold=0.1):
         
         # Convert to string
         output_string = ''.join(map(str, binary_output))
-    
-    print(f"Processed {n_frames} samples from {input_wav}.")
+        
     return output_string
 
 def adjust_binary_string(binary_string, min_zero_length=1000):
@@ -214,7 +213,6 @@ def morse2wav(morse_code, filename='output.wav', wpm=20, freq=600, sample_rate=4
         wf.setframerate(sample_rate)
         wf.writeframes(audio.tobytes())
 
-    print(f"WAV file generated: {filename}") 
 
 if __name__ == '__main__':
    
