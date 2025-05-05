@@ -3,3 +3,4 @@ python-dotenv
 wave
 numpy
 PyQt6
+python-dotenv
